@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}{% if editing %}Редактирование документа{% else %}Регистрация документа{% endif %} — DocFlow RS{% endblock %}{% block content %}
+<div class="breadcrumbs"><a href="/documents">Документы</a>{% if editing %}<span>›</span><a href="/documents/{{ document.id }}">{{ document.registration_number }}</a>{% endif %}<span>›</span><b>{% if editing %}Редактирование{% else %}Регистрация документа{% endif %}</b></div>
+<div class="page-head compact"><div><span class="eyebrow">{% if editing %}ИЗМЕНЕНИЕ КАРТОЧКИ{% else %}НОВАЯ ЗАПИСЬ{% endif %}</span><h1>{% if editing %}Редактирование документа{% else %}Регистрация документа{% endif %}</h1><p>{% if editing %}Измените реквизиты карточки. Регистрационный номер и дата регистрации сохраняются.{% else %}Заполните обязательные реквизиты и назначьте ответственного.{% endif %}</p></div></div>
+<form method="post" class="form-layout" action="{% if editing %}/documents/{{ document.id }}/edit{% else %}/documents/new{% endif %}">
+<section class="card form-card"><div class="section-title"><span>1</span><div><h2>Основные сведения</h2><p>Классификация и регистрационные реквизиты</p></div></div><div class="form-grid">
+<label class="span-2">Заголовок документа *<input name="title" required value="{{ document.title if editing else '' }}" placeholder="Краткое содержание документа"></label>
+{% if editing %}<label>Вид документа<input value="{{ document.kind }}" disabled></label><label>Дата регистрации<input type="date" value="{{ document.registration_date.isoformat() }}" disabled></label>{% else %}<label>Вид документа *<select name="kind">{% for item in document_kinds %}<option {% if selected_kind==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label><label>Дата регистрации *<input type="date" name="registration_date" value="2026-08-14" required></label>{% endif %}
+<label>Тип документа *<select name="document_type_id">{% for item in types %}<option value="{{ item.id }}" {% if editing and document.document_type_id==item.id %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select></label>
+<label>Внешний номер<input name="external_number" value="{{ document.external_number if editing else '' }}" placeholder="Например, АБ-123/26"></label>
+<label>Контрагент<select name="counterparty_id"><option value="">Не указан</option>{% for item in counterparties %}<option value="{{ item.id }}" {% if editing and document.counterparty_id==item.id %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select></label>
+<label>Срок исполнения<input type="date" name="due_date" value="{{ document.due_date.isoformat() if editing and document.due_date else ('2026-08-21' if not editing else '') }}"></label>
+</div></section>
+<section class="card form-card"><div class="section-title"><span>2</span><div><h2>Ответственность и доступ</h2><p>Исполнитель и режим использования</p></div></div><div class="form-grid">
+<label>Ответственный *<select name="responsible_id">{% for item in users %}<option value="{{ item.id }}" {% if editing and document.responsible_id==item.id %}selected{% endif %}>{{ item.full_name }} — {{ item.department }}</option>{% endfor %}</select></label>
+<label>Уровень доступа *<select name="confidentiality">{% for item in confidentiality_levels %}<option {% if editing and document.confidentiality==item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label>
+<label class="span-2">Содержание<textarea name="content" rows="5" placeholder="Аннотация, предмет обращения или управленческое решение">{{ document.content if editing else '' }}</textarea></label>
+<label class="span-2">Имя файла (метаданные)<input name="file_name" value="{{ document.file_name if editing else '' }}" placeholder="document.pdf"><small class="field-help">В учебном MVP физическая загрузка файлов не подключена.</small></label>
+</div></section>
+<div class="form-actions"><a class="btn ghost" href="{% if editing %}/documents/{{ document.id }}{% else %}/documents{% endif %}">Отмена</a>{% if editing %}<button class="btn primary" type="submit">Сохранить изменения</button>{% else %}<button class="btn secondary" type="submit" name="action" value="draft">Сохранить черновик</button><button class="btn primary" type="submit" name="action" value="register">Зарегистрировать</button>{% endif %}</div>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+services:
+  docflow:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      SESSION_SECRET: "docflow-rs-docker-demo-change-me"
+      COOKIE_HTTPS_ONLY: "0"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

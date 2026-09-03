@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}DocFlow RS{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">D</span><div><strong>DocFlow RS</strong><small>документационное обеспечение</small></div></div>
+    <nav>
+      <a class="{% if request.url.path == '/dashboard' %}active{% endif %}" href="/dashboard"><span>⌂</span>Панель</a>
+      <a class="{% if request.url.path.startswith('/documents') %}active{% endif %}" href="/documents"><span>▤</span>Документы</a>
+      {% if can_approve %}<a class="{% if request.url.path.startswith('/approvals') %}active{% endif %}" href="/approvals"><span>✓</span>Согласование</a>{% endif %}
+      {% if can_view_resolutions %}<a class="{% if request.url.path.startswith('/resolutions') %}active{% endif %}" href="/resolutions"><span>↳</span>Резолюции</a>{% endif %}
+      <a class="{% if request.url.path.startswith('/reports') %}active{% endif %}" href="/reports"><span>▥</span>Отчеты</a>
+      {% if can_manage_users or can_manage_directories or can_view_audit or can_manage_settings %}<div class="nav-label">Администрирование</div>{% endif %}
+      {% if can_manage_users %}<a class="{% if request.url.path.startswith('/users') %}active{% endif %}" href="/users"><span>◉</span>Пользователи</a>{% endif %}
+      {% if can_manage_directories %}<a class="{% if request.url.path.startswith('/dictionaries') %}active{% endif %}" href="/dictionaries"><span>≡</span>Справочники</a>{% endif %}
+      {% if can_view_audit %}<a class="{% if request.url.path.startswith('/audit') %}active{% endif %}" href="/audit"><span>◷</span>Журнал действий</a>{% endif %}
+      {% if can_manage_settings %}<a class="{% if request.url.path.startswith('/settings') %}active{% endif %}" href="/settings"><span>⚙</span>Настройки</a>{% endif %}
+    </nav>
+    <div class="sidebar-foot"><span class="dot"></span> Система доступна<br><small>Версия 1.2.0 · учебный MVP</small></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <form class="search-short" action="/documents" method="get"><span>⌕</span><input id="global-search" name="query" placeholder="Поиск по документам"><kbd>Ctrl K</kbd></form>
+      <div class="profile"><div class="avatar">{{ current_user.initials }}</div><div><strong>{{ current_user.full_name }}</strong><small>{{ current_user.role }}</small></div><form method="post" action="/logout"><button class="logout-link" title="Выйти">Выйти</button></form></div>
+    </header>
+    <div class="content">{% block content %}{% endblock %}</div>
+  </main>
+</div>
+<script>
+document.addEventListener('keydown', function (event) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault();
+    const input = document.getElementById('global-search');
+    if (input) input.focus();
+  }
+});
+</script>
+</body>
+</html>
